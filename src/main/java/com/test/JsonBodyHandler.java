@@ -15,14 +15,15 @@ import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonBodyHandler<T> implements BodyHandler<Supplier<T>> {
 
-    private Class<T> targetClass;
+    private TypeReference<T> targetClass;
 
-    public JsonBodyHandler(Class<T> targetClass) {
-        this.targetClass = targetClass; 
+    public JsonBodyHandler(TypeReference<T> targetClass) {
+        this.targetClass = targetClass;
     }
 
     @Override
@@ -32,7 +33,7 @@ public class JsonBodyHandler<T> implements BodyHandler<Supplier<T>> {
 
     }
 
-    public <W> BodySubscriber<Supplier<W>> toJson(Class<W> targetClass) {
+    public <W> BodySubscriber<Supplier<W>> toJson(TypeReference<W> targetClass) {
         BodySubscriber<InputStream> upstream = BodySubscribers.ofInputStream();
 
         return BodySubscribers.mapping(
@@ -40,14 +41,13 @@ public class JsonBodyHandler<T> implements BodyHandler<Supplier<T>> {
                 (body) -> this.toSubscriberOfType(body, targetClass));
     }
 
-    public <W> Supplier<W> toSubscriberOfType(InputStream inputStream, Class<W> targetClass){
+    public <W> Supplier<W> toSubscriberOfType(InputStream inputStream, TypeReference<W> targetClass) {
         return () -> {
             try (InputStream stream = inputStream) {
                 // ObjectMapper mapper
                 ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(stream, targetClass);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         };
