@@ -28,7 +28,6 @@ public class JsonBodyHandler<T> implements BodyHandler<Supplier<T>> {
 
     @Override
     public BodySubscriber<Supplier<T>> apply(ResponseInfo responseInfo) {
-
         return this.toJson(this.targetClass);
 
     }
@@ -38,13 +37,13 @@ public class JsonBodyHandler<T> implements BodyHandler<Supplier<T>> {
 
         return BodySubscribers.mapping(
                 upstream,
-                (body) -> this.toSubscriberOfType(body, targetClass));
+                (body) -> this.toSupplierOfType(body, targetClass));
     }
 
-    public <W> Supplier<W> toSubscriberOfType(InputStream inputStream, TypeReference<W> targetClass) {
+    //returns arrow function which converts inputStream to json object
+    public <W> Supplier<W> toSupplierOfType(InputStream inputStream, TypeReference<W> targetClass) {
         return () -> {
             try (InputStream stream = inputStream) {
-                // ObjectMapper mapper
                 ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(stream, targetClass);
             } catch (IOException e) {

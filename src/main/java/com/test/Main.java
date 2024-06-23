@@ -23,12 +23,13 @@ public class Main {
                 .build();
 
         try {
-
+            //expect responce consitst of mulitple User entities
             HttpResponse<Supplier<List<User>>> res = client.send(
                     request,
                     new JsonBodyHandler<>(new TypeReference<List<User>>() {
                     }));
-
+            
+            //printing entities
             res.body().get().forEach(System.out::println);
 
         } catch (Exception e) {
